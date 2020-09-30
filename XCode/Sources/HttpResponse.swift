@@ -87,6 +87,7 @@ public enum HttpResponse {
     case tooManyRequests
     case internalServerError
     case raw(Int, String, [String: String]?, ((HttpResponseBodyWriter) throws -> Void)? )
+    case custom(Int, String, [String:String]?, HttpResponseBody? )
 
     public var statusCode: Int {
         switch self {
@@ -104,6 +105,7 @@ public enum HttpResponse {
         case .tooManyRequests         : return 429
         case .internalServerError     : return 500
         case .raw(let code, _, _, _)  : return code
+        case .custom(let code, _, _, _)  : return code
         }
     }
 
@@ -123,6 +125,7 @@ public enum HttpResponse {
         case .tooManyRequests          : return "Too Many Requests"
         case .internalServerError      : return "Internal Server Error"
         case .raw(_, let phrase, _, _) : return phrase
+        case .custom(_, let phrase, _, _) : return phrase
         }
     }
 

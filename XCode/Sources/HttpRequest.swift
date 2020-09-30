@@ -13,7 +13,24 @@ public class HttpRequest {
     public var queryParams: [(String, String)] = []
     public var method: String = ""
     public var headers: [String: String] = [:]
-    public var body: [UInt8] = []
+    public var bodyReader: (length: Int, socket: Socket)?
+    public var bodyData: [UInt8]?
+    public var body: [UInt8] {
+        if let bodyData = bodyData { return bodyData }
+        if let bodyReader = bodyReader {
+            self.bodyReader = nil
+            do {
+                bodyData = try bodyReader.socket.read(length: bodyReader.length)
+                return bodyData!
+            }
+            catch {
+                // This sucks - we'd really want to throw, but too many changes required for that. Basic architecture limitation.
+                print("body read failed: \(error)")
+                return []
+            }
+        }
+        return []
+    }
     public var address: String? = ""
     public var params: [String: String] = [:]
 

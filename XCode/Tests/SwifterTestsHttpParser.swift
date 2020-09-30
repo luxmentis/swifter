@@ -164,6 +164,10 @@ class SwifterTestsHttpParser: XCTestCase {
         XCTAssertEqual(resp?.path, "/open", "Parser should extract HTTP path value from the status line.")
         XCTAssertEqual(resp?.headers["content-length"], "10", "Parser should extract Content-Length header value.")
 
+        resp = try? parser.readHttpRequest(TestSocket("GET /open?param=twas%20brillig HTTP/1.0\nContent-Length: 0\n\n"))
+
+        XCTAssertEqual(resp?.queryParams.filter({ $0.0 == "param"}).first?.1, "twas brillig", "Parse should decode query params")
+
         resp = try? parser.readHttpRequest(TestSocket("POST / HTTP/1.0\nContent-Length: 10\n\n1234567890"))
         XCTAssertEqual(resp?.method, "POST", "Parser should extract HTTP method name from the status line.")
 

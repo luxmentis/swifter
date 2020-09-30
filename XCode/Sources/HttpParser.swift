@@ -24,8 +24,13 @@ public class HttpParser {
         }
         let request = HttpRequest()
         request.method = statusLineTokens[0]
-        let encodedPath = statusLineTokens[1].addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? statusLineTokens[1]
-        let urlComponents = URLComponents(string: encodedPath)
+
+        // Adrian: this is just wrong - params are usually already encoded (with Safari, Siesta, URLSession although not wth curl).
+        // Seems to be what he's using for subscript params, which are now broken (there's a test), but let's not worry about that for now.
+        //let encodedPath = statusLineTokens[1].addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? statusLineTokens[1]
+        //let urlComponents = URLComponents(string: encodedPath)
+        let urlComponents = URLComponents(string: statusLineTokens[1])
+
         request.path = urlComponents?.path ?? ""
         request.queryParams = urlComponents?.queryItems?.map { ($0.name, $0.value ?? "") } ?? []
         request.headers = try readHeaders(socket)
@@ -35,7 +40,7 @@ public class HttpParser {
             guard contentLengthValue >= 0 else {
                 throw HttpParserError.negativeContentLength
             }
-            request.body = try readBody(socket, size: contentLengthValue)
+            request.bodyReader = (length: contentLengthValue, socket: socket)
         }
         return request
         }
