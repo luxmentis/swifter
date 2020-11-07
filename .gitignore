@@ -28,3 +28,6 @@ DerivedData
 .build/
 Packages/
 /XCode/.DS_Store
+
+# AppCode
+.idea/
