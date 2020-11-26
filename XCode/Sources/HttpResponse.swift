@@ -86,6 +86,7 @@ public enum HttpResponse {
     case badRequest(HttpResponseBody?), unauthorized, forbidden, notFound, notAcceptable
     case tooManyRequests
     case internalServerError
+    // This is crap because it doesn't work out content length:
     case raw(Int, String, [String: String]?, ((HttpResponseBodyWriter) throws -> Void)? )
     case custom(Int, String, [String:String]?, HttpResponseBody? )
 
@@ -163,6 +164,7 @@ public enum HttpResponse {
         case .ok(let body)             : return body.content()
         case .badRequest(let body)     : return body?.content() ?? (-1, nil)
         case .raw(_, _, _, let writer) : return (-1, writer)
+        case .custom(_, _, _, let body)  : return body?.content() ?? (-1, nil)
         default                        : return (-1, nil)
         }
     }
